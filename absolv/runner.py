@@ -218,6 +218,8 @@ def _run_phase_hremd(
         n_warmup_steps=protocol.production_protocol.n_warmup_steps,
         n_steps_per_cycle=protocol.production_protocol.n_steps_per_cycle,
         n_cycles=protocol.production_protocol.n_cycles,
+        trajectory_interval=1,
+        trajectory_enforce_pbc=True
     )
 
     with tempfile.TemporaryDirectory() as tmp_dir:
