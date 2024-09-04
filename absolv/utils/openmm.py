@@ -8,6 +8,7 @@ import openff.toolkit
 import openmm
 import openmm.app
 import openmm.unit
+import numpy
 
 SystemGenerator = typing.Callable[
     [
@@ -79,7 +80,16 @@ def create_simulation(
     if topology.box_vectors is not None:
         simulation.context.setPeriodicBoxVectors(*topology.box_vectors.to_openmm())
 
-    simulation.context.setPositions(coords)
+    n_particles = system.getNumParticles()
+    full_coords = numpy.zeros((n_particles, 3))
+    valid_indices = [
+        i
+        for i in range(n_particles)
+        if not system.isVirtualSite(i)
+    ]
+    full_coords[valid_indices] = coords.value_in_unit(openmm.unit.nanometers)
+    simulation.context.setPositions(full_coords * openmm.unit.nanometers)
+    simulation.context.computeVirtualSites()
     simulation.context.setVelocitiesToTemperature(integrator.getTemperature())
 
     return simulation
